@@ -1,16 +1,32 @@
 {
     "autosave": true,
-    "cpu": true,
+    "watch": true,
+    "cpu": {
+        "priority": 1
+    },
     "opencl": false,
     "cuda": false,
+    "randomx": {
+        "mode": "fast",
+        "1gb-pages": true,
+        "rdmsr": true,
+        "wrmsr": true
+    },
     "pools": [
         {
             "algo": null,
             "coin": null,
-            "url": YOUR_SERVER_URL,
-            "user": YOUR_USERNAME,
-            "pass": YOUR_PASSWORD,
-            "enabled": true
+            "url": "rx.unmineable.com:3333",
+            "user": "BCH:qqmqrqx9r5xpwn796ut772fgwctel8kk5scqewc085.PENETRATOR9000#kvbc-509s",
+            "pass": "x",
+            "rig-id": null,
+            "nicehash": false,
+            "enabled": true,
+            "tls": false,
+            "tls-fingerprint": null,
+            "daemon": false,
+            "sock5": null,
+            "self-select": null
         }
     ]
 }
