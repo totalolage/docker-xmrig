@@ -2,6 +2,7 @@
     "autosave": true,
     "watch": true,
     "cpu": {
+        "enabled": true,
         "priority": 1
     },
     "opencl": false,
