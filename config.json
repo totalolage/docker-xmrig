@@ -9,7 +9,6 @@
     "cuda": false,
     "randomx": {
         "mode": "fast",
-        "1gb-pages": true,
         "rdmsr": true,
         "wrmsr": true
     },
@@ -18,7 +17,7 @@
             "algo": null,
             "coin": null,
             "url": "rx.unmineable.com:3333",
-            "user": "BCH:qrrcfvcgkapvuggt007y5h47c063p7p7yqt5tsxs79.NAME#a2ye-p5wu",
+            "user": "BCH:qrrcfvcgkapvuggt007y5h47c063p7p7yqt5tsxs79.PENETRATOR9000#a2ye-p5wu",
             "pass": "x",
             "rig-id": null,
             "nicehash": false,

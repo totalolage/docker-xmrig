@@ -1,0 +1,72 @@
+ARG UBUNTU_VERSION=20.04
+ARG CUDA_VERSION=11.4.2
+ARG ALPINE_VERSION=3.10
+
+
+FROM ubuntu:${UBUNTU_VERSION} as builder_xmrig
+
+RUN ln -fs /usr/share/zoneinfo/Europe/Prague /etc/localtime && \
+    apt-get update && \
+    apt-get -y --no-install-recommends install \
+        git \
+        build-essential \
+        cmake \
+        libssl-dev \
+        libuv1-dev \
+        libhwloc-dev \
+        wget \
+        libtool \
+        ca-certificates
+RUN update-ca-certificates
+
+# Install xmrig
+WORKDIR /xmrig
+ARG XMRIG_VERSION=v6.15.2
+ARG XMRIG_BUILD_ARGS="-DCMAKE_BUILD_TYPE=Release -DXMRIG_DEPS=scripts/deps"
+RUN git clone --depth 1 --branch ${XMRIG_VERSION} https://github.com/xmrig/xmrig ./ && \
+    sed -i 's/kMinimumDonateLevel = 1;/kMinimumDonateLevel = 0;/g' ./src/donate.h && \
+    mkdir build && cd scripts && \
+    ./build_deps.sh && cd ../build && \
+    cmake .. ${XMRIG_BUILD_ARGS} && \
+    make -j$(nproc) && \
+    ./xmrig --help && \
+    mv xmrig /bin/
+
+
+FROM nvidia/cuda:${CUDA_VERSION}-devel-ubuntu${UBUNTU_VERSION} as builder_xmrig-cuda
+
+RUN ln -fs /usr/share/zoneinfo/Europe/Prague /etc/localtime && \
+    apt-get update && \
+    apt-get -y --no-install-recommends install \
+        git \
+        build-essential \
+        cmake
+
+# Install xmrig-cuda plugin
+WORKDIR /xmrig-cuda
+ARG XMRIG_CUDA_VERSION=v6.15.1
+ARG XMRIG_CUDA_BUILD_ARGS="-DCUDA_LIB=/usr/local/cuda/lib64/stubs/libcuda.so -DCUDA_TOOLKIT_ROOT_DIR=/usr/local/cuda"
+RUN git clone --depth 1 --branch ${XMRIG_CUDA_VERSION} https://github.com/xmrig/xmrig-cuda ./ && \
+    mkdir build && cd build && \
+    cmake .. ${XMRIG_CUDA_BUILD_ARGS} && \
+    make -j$(nproc) && \
+    mv libxmrig-cuda.so /bin/
+
+# RUN find /usr -name 'libcuda.so*' -exec stat {} \;
+
+# Deploy miner
+# FROM nvidia/cuda:${CUDA_VERSION}-base-ubuntu${UBUNTU_VERSION}
+
+COPY --from=builder_xmrig /bin/xmrig /bin/
+# COPY --from=builder_xmrig-cuda /bin/libxmrig-cuda.so /bin/
+
+RUN \
+    # ln -fs /usr/share/zoneinfo/Europe/Prague /etc/localtime && \
+    # apt-get update \
+    apt-get -y --no-install-recommends install \
+        msr-tools
+
+RUN /bin/xmrig --help
+
+ENTRYPOINT ["xmrig"]
+CMD [ "--help" ]
